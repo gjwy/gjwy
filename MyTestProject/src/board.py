@@ -8,7 +8,7 @@ from piece import Piece
 performing game logic calculations. Changes made as a result (mostly to tiles) are flagged and 
 will be seen by the gui code and the corresponding graphical tiles etc will be updated. """
 class GameBoard():
-    board = [] #contains all board infoy
+    board = [] #contains all board info
     size = 0
     def __init__(self, size=8):
         self.size = size

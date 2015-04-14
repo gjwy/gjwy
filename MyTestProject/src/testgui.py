@@ -161,6 +161,7 @@ class Application(tk.Frame):
         aboutPane = tk.Toplevel()
         aboutPane.resizable(0, 0)
         
+        
         # centre it in the middle of the screen
         width = aboutPane.winfo_screenwidth()
         height = aboutPane.winfo_screenheight()

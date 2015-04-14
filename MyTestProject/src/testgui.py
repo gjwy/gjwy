@@ -362,13 +362,8 @@ class Application(tk.Frame):
             
             if tileInfo == self.SELECTED:
                 
-                #print("my list of jump moves is: ", self.POTENTIAL)
-                
-                # if there are no move valid jumps (2,2), change player and go to state 1
-                # otherwise repeat for successive jumps
-                
                 inBoard.plsHighlight(self.POTENTIAL)
-                self.SELECTED = tileInfo # redundant
+                self.SELECTED = tileInfo
                 self.STATE = 2
             # force player to continue this jump sequence
             else:

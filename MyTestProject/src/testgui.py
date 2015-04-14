@@ -240,171 +240,126 @@ class Application(tk.Frame):
     amount of game logic which could possibly be moved further into the model if required. 
     Responses to gui actions are calls to various board methods, followed by a refreshDisplay call
     in order to update the GUI. """
-    def somethingHappened(self, coord, iid, base): #selected tile, board / self.board
-        #print("after smth happend", self.STATE)
-        
-        # A STATE VARIABLE WILL KEEP TRACK OF EG IF A CLICK ELSEWHERE WILL RESET THE HIGHLIGHTING
-        # EG THIS FUNCTION CALLED ACTS DIFFERENTLY DEPENDING ON STATE VARIABLE
-        
+    def somethingHappened(self, coord, iid, base):
         
         
         ## if self.GAMETYPE == "hosting" - do game with moves sent to network
         
-        
-        
-        
-        #first press code
-        tileInfo = inBoard.tilePressed(coord)
-        if self.STATE == 1:
+        tileInfo = inBoard.tilePressed(coord) # get the tile which was pressed
+        #if first press of turn
+        if self.STATE == 1: 
             
+            # check if there are any jumps available
+            available_jumps = inBoard.checkAvailableMoves(self.PLAYER, onlyJumps=True)
             
-            
-            
-            ## AT THE START OF EVERY STATE 1 (eg this is following an initial click)
-            ## MUST ENFORCE THE 'MUST JUMP' RULE
-            ## HOW TO DO THAT EFFICIENTLY?
-            ## SCAN EACH PIECE (of the current player)
-            ## get a list of jump moves, assert that the tileInfo (one just pressed) is in
-            ## this list before proceeding. Else give relevant message etc.
-            
-            piecesWithJumpsCoords = inBoard.checkAvailableMoves(self.PLAYER, onlyJumps=True)
-            #print("====> At start of a turn. If >", len(piecesWithJumpsCoords), "< is not 0,\nthen must assert that the piece selected for this turn is one of those in there.\nIf it's 0 then can select any piece since that means there are no\n jump moves that must be made.")
-            if piecesWithJumpsCoords and not tileInfo.tileCoord in piecesWithJumpsCoords: #if there is some in there
-                #give message
+            # if jumps available and the clicked tile isn't in one of them
+            if available_jumps and not tileInfo.tileCoord in available_jumps:
                 self.MESSAGE = "you must capture a piece if possible"
-            else:
             
+            else:
+                # if the tile contains the player's own piece
                 if tileInfo.isTileOccupied and tileInfo.occupyingPiece.player == self.PLAYER:
                     
+                    # firstly get the potential places to move to for the selected piece (jumps)
                     potentialMoveCoords = inBoard.getAvailableMoveCoords(coord, getOnlyJumps=True)
                     
-                    # only look for 1,1 moves when no 2,2 moves
-                    # but going to need an entire board check for priority of 2,2 over 1,1 for all pieces
+                    # if there are no potential jump moves, then get the normal moves
                     if not potentialMoveCoords:
                         potentialMoveCoords = inBoard.getAvailableMoveCoords(coord)
                         
-                    #for the initial error double click bug, fix in here
-                    
-                    
-                    #print("24: ", potentialMoveCoords)
-                    #print("1. ", potentialMoveCoords)
-                    # this line is changing the gui tiles directly
-                    #need to make it first change the logic tiles
-                    
-                    ## USE TILEPRESSED COORD TO GET POTENTIAL MOVE COORDS
-                    ## CHANGE EACH OF THE LOGIC TILES AT THOSE POSITIONS TO HIGHLIHGHTED
-                    ## REDRAW THE BOARD (WHERE HIGHLIGHTED gets diff colour) 
-                    
+                    # highlight these places as potential places to move to
                     inBoard.plsHighlight(potentialMoveCoords)
-                    ## NOW THE LOGIC TILES ARE MARKED TRUE FOR HIGHLIGHT
-                    
-                    ## NOW RENDER THE DISPLAY
-                    
-                    #now the board is highlighted accordingly
-                    # so update the state
+                   
+                    # board is now highlighted
+                    # SELECTED contains that initial tile
+                    # POTENTIAL contains those tiles which are highlighted
                     self.SELECTED = tileInfo
                     self.POTENTIAL = potentialMoveCoords
+                    
+                    # change the state to "tileA is clicked and board highlighted"
                     self.STATE = 2
-                    #break (so next if is not executed ...)
         
-        # so on the second press when STATE==2 this code is executed
+        #elif the second press of the turn (board has highlighted valid tileBs))
         elif self.STATE == 2:
-            #board is currently highlighted
-            # tileInfo will contain the tile which was just pressed
-            # so check if its highlighted, if it is, move piece FROM PREVIOUS STEP (?) to here
-            # otherwise its out of the legal moves so reset the highlighting and then reset the state
+            # tileInfo will contain the tileB which was just pressed
+            #SELECTED will contain tileA
+            #POTENTIAL will contain the valid positions tileB can b
+           
             
-            #simpler to just check with gui tile rather than mainting syncronisation between gui and logic tiles
-            
-            # convert tileInfo to the gui tile, 
-            # check that gui tile is highlighted / not
-            
-            # CHECK AGAINST LOGI FOR CONSISTENCY
+            # if tileB is Highlighted (eg same as in potential)
             if tileInfo.isHighlighted:
-                #print("OK, moving piece now") # using self.SELECTED
                 
-                ## so a valid (highlighted) targeted tile has been clicked to move the piece to
-                ## NEED TO work out which move object has been selected, in order to remove any jumped pieces
-                
-                #         self.SELECTED is tileA
-                #         tileInfo is tileB
-                #         self.POTENTIAL contains the list of moves it could be
-                
-                ## CALL FUNC TO MOVE THE PIECE
-                ## MOVING PIECE FROM self.SELECTED to tileInfo
-                
+                # move the piece from tileA (SELECTED) to tileB(tileInfo)
+                # identifies this 'move' in the POTENTIAL (list of moves)
+                # in order to get info about any captured pieces
                 outcome = inBoard.plsMovePiece(self.SELECTED, tileInfo, self.POTENTIAL)
                 
+                # now the logic move has completed,
                 inBoard.plsUnHighlight(self.POTENTIAL)
                 
-                ## swap players
-                ## end of turn, swap players 
-                ## BUT if pieceDeleted is occupied then allow further checking for successive jumps
-                #print("========== END OF TURN ===========")
+                
+                # need to check for a kinging result / further jumps for the turn
                 if outcome['piece_captured']:
                     captured_piece = outcome['piece_captured']
                     self.NUM_DELETED[captured_piece.player] += 1
-                    # instead of going to other players turn, keep on current player,
-                    # make selected the recently landed (tileInfo)
+                    
+                    # eg the tileB is the new tileA
                     self.SELECTED = tileInfo
                     
-                    #print(self.STATE)
-                    # want to get the new landeed location and only go to state 9 if there are
-                    # more available jump moves
+                    
                     if outcome['piece_isKinged']:
-                        # eg if a piece was kinged as a result, dont look for more jumps
-                        #print('king created, move ends')
-                        #CHANGE THESE TO FUNCTIONS
+                        # the 'kinging' of the piece is done in the plsMovePiece function
+                        # so just end the turn (a new king cant continue jumping)
+                        
+                        ## TODO change this to a function
                         self.PLAYER = "white" if self.PLAYER == "red" else "red"
                         self.MESSAGE = "it is " + self.PLAYER + "'s turn"
                         self.STATE = 1
+                    #else not king so just check for extra jumps
                     else:
                         anyMoreAvailableJumpMovesQQ = inBoard.getAvailableMoveCoords(tileInfo.tileCoord, getOnlyJumps=True)
                         if anyMoreAvailableJumpMovesQQ:
                             self.POTENTIAL = anyMoreAvailableJumpMovesQQ
-                            self.STATE = 9
+                            self.STATE = 3 # "jump sequence continues"
+                        # else no move moves, so just end turn and change player
+                        # state is reset back to 1 for the next player
                         else:
                             self.PLAYER = "white" if self.PLAYER == "red" else "red"
                             self.MESSAGE = "it is " + self.PLAYER + "'s turn"
                             self.STATE = 1
+                # else the move was just a 1,1 move (no captures etc)
                 else:
                     self.PLAYER = "white" if self.PLAYER == "red" else "red"
                     self.MESSAGE = "it is " + self.PLAYER + "'s turn"
                     self.STATE = 1
-                #use tile from SELECTED to move to  guiTile/tileInfo
-                # and reset the highlighting
-            # ELIF the player has clicked on another of their pieces instead of a highlighted place
-            elif not tileInfo.isHighlighted and tileInfo.isTileOccupied and tileInfo.occupyingPiece.player == self.PLAYER:
-                if self.SELECTED.tileCoord != tileInfo.tileCoord:
-                    # if its a new piece (same player) just update the highlight
-                    inBoard.plsUnHighlight(self.POTENTIAL)
-                    self.STATE = 1
-                    # essentially repeat top code
-                    self.somethingHappened(coord, iid, base)
-                else:
                     
-                    #its the same piece which has been clicked, just remove the highlight is all
+            # elif the player has clicked on another of their pieces (instead of a highlighted tile)
+            elif not tileInfo.isHighlighted and tileInfo.isTileOccupied and tileInfo.occupyingPiece.player == self.PLAYER:
+                # if the player has clicked on another of their pieces
+                if self.SELECTED.tileCoord != tileInfo.tileCoord:
+                    # remove the current highlight
+                    inBoard.plsUnHighlight(self.POTENTIAL)
+                    # go back to state 1 and repeat from start
+                    self.STATE = 1
+                    self.somethingHappened(coord, iid, base)
+                # else the player just clicked on that tileA again
+                else:
+                    # so just unhighlight (like a toggle)
                     inBoard.plsUnHighlight(self.POTENTIAL)
                     self.STATE = 1
                 
-            
+            # else the player just clicked somehwere else on the board
             else:
-                #its not a highlighted position OR one of their other pieces
-                # so reset the highlighting of those tiles in POTENTIAL
-                # the colour needs to be the original COLOR OF THE TILES
                 
-                #the current highlights are stored in POTENTIAL
-                #but its better to just reset all tiles back to non-highlight ...
                 inBoard.plsUnHighlight(self.POTENTIAL)
-            
                 self.STATE = 1
-        
-        elif self.STATE == 9: #test state
-            #if state is 9 then this means player has just captured a piece
-            # need to take the piece he just used (which will be placed into selected)
-            # and see if there are successive jump moves eg only allow the clicked tile (tileInfo)
-            # to be == to selected
-            #print("getting to here, player is: ", self.PLAYER)
+           
+           
+        # elif:        
+        # an opponent's piece has just been jumped
+        # and there are further pieces which can be jumped
+        elif self.STATE == 3:
+            
             if tileInfo == self.SELECTED:
                 
                 #print("my list of jump moves is: ", self.POTENTIAL)
@@ -415,6 +370,7 @@ class Application(tk.Frame):
                 inBoard.plsHighlight(self.POTENTIAL)
                 self.SELECTED = tileInfo # redundant
                 self.STATE = 2
+            # force player to continue this jump sequence
             else:
                 self.MESSAGE = self.PLAYER + ", please continue the capture sequence"
                 

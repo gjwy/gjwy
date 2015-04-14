@@ -10,7 +10,7 @@ class Network():
     clientsSocket = None
     CONNECTION = None 
     
-    def host(self, success_callback):
+    def host(self, success_callback, base, Board):
     # load settings from file, do a quick check to ensure they are valid
     # create the connection and wait for a join,
     # offload it to client socket,
@@ -31,7 +31,7 @@ class Network():
         print("clientsocket handling the connection")
         self.CONNECTION = True
         #if get to here then connection made,
-        success_callback()
+        success_callback(base, Board)
         return self.CONNECTION
             
                 #msg = input("> press enter to send")

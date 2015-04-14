@@ -1,7 +1,7 @@
 """ Gareth Wilson
     13-Feb-15 """
 
-import tkinter as tk
+import tkinter as tk #s
 import threading
 from board import GameBoard
 import network as nw

@@ -16,6 +16,7 @@ class Application(tk.Frame):
     
     
     STATE = None #d
+    GAMETYPE = None
     PLAYER = None
     SELECTED = None
     POTENTIAL = None
@@ -245,6 +246,13 @@ class Application(tk.Frame):
         # A STATE VARIABLE WILL KEEP TRACK OF EG IF A CLICK ELSEWHERE WILL RESET THE HIGHLIGHTING
         # EG THIS FUNCTION CALLED ACTS DIFFERENTLY DEPENDING ON STATE VARIABLE
         
+        
+        
+        ## if self.GAMETYPE == "hosting" - do game with moves sent to network
+        
+        
+        
+        
         #first press code
         tileInfo = inBoard.tilePressed(coord)
         if self.STATE == 1:
@@ -428,19 +436,27 @@ class Application(tk.Frame):
         self.refreshDisplay(base, inBoard.board)
     
     
-    def connection_success_callback(self):
-        print("i have connected")
+    def on_client_connect(self, base, Board):
+        print("connection has been made so now allow each prog to proceed to thegame")
+        self.GAMETYPE = "hosting"
+        # state is set tp multiplayer-host
+        # have access to base (gui) and board
+        self.setup(base, Board)
+        
+        
     
-    def hostGame(self, base=None):
+    
+    def hostGame(self, base, Board):
         # calls the methods in network module, updating message status as it goes
         # draft paper how this should be designed
         # create dialogue box using base??
         # success = nw.host
         ## MESSAGE = waiting for connecting
-        t = threading.Thread(target=nwobj.host, args=(self.connection_success_callback,))
+        t = threading.Thread(target=nwobj.host, args=(base, Board, self.on_client_connect))
         t.start()
     
         print("main thread in waiting on connection status, but thread not blocked")
+        
         #result = nwobj.host()
         #if result:
             #print("connection established")
@@ -461,6 +477,10 @@ class Application(tk.Frame):
     
     
             
+            
+    def localGame(self, base, Board):
+        self.STATE = 1
+        self.setup(base, Board)
             
     """ Draws the GUI buttons, board and tiles and attaches each tile to a callback function
     with relevant parameters (coords according to which tile was pressed). 
@@ -558,11 +578,11 @@ class Application(tk.Frame):
         menubutton = tk.Menu(window)
         
         filemenu = tk.Menu(tearoff=0)
-        filemenu.add_command(label="Local Game", command=lambda: self.setup(base, Board))
+        filemenu.add_command(label="Local Game", command=lambda: self.localGame(base, Board))
         # this is another inner cascade menu with the join and host options (its added to the mainmenu)
         
         multimenu = tk.Menu(tearoff=0)
-        multimenu.add_command(label="Host", command=self.hostGame)
+        multimenu.add_command(label="Host", command=lambda: self.hostGame(base, Board))
         multimenu.add_command(label="Join", command=self.joinGame)
         
         filemenu.add_cascade(label="Multiplayer Game", menu=multimenu)

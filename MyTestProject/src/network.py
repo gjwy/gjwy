@@ -3,7 +3,7 @@ import socket
 
 class Network():
     
-    HOST = "192.168.1.9"
+    HOST = "192.168.1.16"
     PORT = 9999
     SERVERSOCKET = None
     CLIENTSOCKET = None # the connection is sent to this one ultimately

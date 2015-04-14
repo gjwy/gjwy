@@ -1,6 +1,6 @@
 """ Gareth Wilson
     13-Feb-15 """
-# minusminusminus
+#finality
 from tile import Tile
 from piece import Piece
 

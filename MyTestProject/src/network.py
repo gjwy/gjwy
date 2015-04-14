@@ -7,6 +7,7 @@ class Network():
     PORT = 9999
     SERVERSOCKET = None
     CLIENTSOCKET = None # the connection is sent to this one ultimately
+    clientsSocket = None
     CONNECTION = None 
     
     def host(self, success_callback):
@@ -56,13 +57,19 @@ class Network():
 
     
     def join(self, success_callback):
-        clientsSocket = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
-        clientsSocket.connect((self.HOST, self.PORT))
+        self.clientsSocket = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
+        self.clientsSocket.connect((self.HOST, self.PORT))
         print("the client has connected to the host")
         success_callback()
         
         
-        
+    def close_sockets(self):
+        try:
+            #for host
+            self.SERVERSOCKET.close()
+            self.CLIENTSOCKET.close()
+            #for client
+            self.clientsSocket.close()
         
         
         

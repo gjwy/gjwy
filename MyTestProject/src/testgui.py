@@ -456,7 +456,8 @@ class Application(tk.Frame):
         jt.start()
         print("main thread in waiting on result of join attempt, not blocked")
     
-    
+    def closeSock(self):
+        nwobj.close_sockets()
     
     
             
@@ -568,6 +569,7 @@ class Application(tk.Frame):
         #filemenu.add_command(label="Save", command=0)
         filemenu.add_command(label="Settings", command=self.openSettings)
         filemenu.add_command(label="About", command=self.openAbout)
+        filemenu.add_command(label="close sockets (test)", command=self.closeSock)
         filemenu.add_separator()
         filemenu.add_command(label="Quit", command=window.quit)
         

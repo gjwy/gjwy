@@ -428,6 +428,8 @@ class Application(tk.Frame):
         self.refreshDisplay(base, inBoard.board)
     
     
+    def connection_success_callback(self):
+        print("connected")
     
     def hostGame(self, base=None):
         # calls the methods in network module, updating message status as it goes
@@ -435,10 +437,10 @@ class Application(tk.Frame):
         # create dialogue box using base??
         # success = nw.host
         ## MESSAGE = waiting for connecting
-        t = threading.Thread(target=nwobj.host)
+        t = threading.Thread(target=nwobj.host, args=(self.connection_success_callback,))
         t.start()
-        print(t.is_alive())
-        print(t.is_alive())
+    
+        print("main thread in waiting on connection status, but thread not blocked")
         #result = nwobj.host()
         #if result:
             #print("connection established")

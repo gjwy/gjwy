@@ -6,7 +6,7 @@ class Network():
     HOST = "192.168.1.9"
     PORT = 9999
     SERVERSOCKET = None
-    CLIENTSOCKET = None # the connection is sent to this one ultimately
+    CLIENTSOCKET = None # the connection is sent to this one ultimately 
     
     def host(self):
     # load settings from file, do a quick check to ensure they are valid

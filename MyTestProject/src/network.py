@@ -55,5 +55,14 @@ class Network():
   
 
     
-    def join(self):
-        pass
+    def join(self, success_callback):
+        clientsSocket = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
+        clientsSocket.connect((self.HOST, self.PORT))
+        print("the client has connected to the host")
+        success_callback()
+        
+        
+        
+        
+        
+        

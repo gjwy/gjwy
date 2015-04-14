@@ -429,7 +429,7 @@ class Application(tk.Frame):
     
     
     def connection_success_callback(self):
-        print("connected")
+        print("i have connected")
     
     def hostGame(self, base=None):
         # calls the methods in network module, updating message status as it goes
@@ -452,7 +452,9 @@ class Application(tk.Frame):
         ## BREAK REFRESH DISPLAY INTO 2 FUNCS SO NOT HAVING TO REFRESH WHOLE BOARD AT THIS STAGE
         
     def joinGame(self):
-        pass
+        jt = threading.Thread(target=nwobj.join, args=(self.connection_success_callback,))
+        jt.start()
+        print("main thread in waiting on result of join attempt, not blocked")
     
     
     

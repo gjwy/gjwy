@@ -374,7 +374,7 @@ class Application(tk.Frame):
         
         ## AT the END OF EVERY TURN also need to check that there are possible normal moves
         ## for the next player to make
-            
+
         piecesWithAvailableMoves = inBoard.checkAvailableMoves(self.PLAYER)
         if not piecesWithAvailableMoves:
             # make it better

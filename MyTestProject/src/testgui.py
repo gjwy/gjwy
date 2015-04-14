@@ -15,7 +15,7 @@ must be updated accordingly. """
 class Application(tk.Frame):
     
     
-    STATE = None #
+    STATE = None #d
     PLAYER = None
     SELECTED = None
     POTENTIAL = None

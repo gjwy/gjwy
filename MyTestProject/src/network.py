@@ -70,7 +70,7 @@ class Network():
             self.CLIENTSOCKET.close()
             #for client
             self.clientsSocket.close()
-        except OSError:
+        except AttributeError:
             pass
             
             

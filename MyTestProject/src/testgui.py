@@ -243,7 +243,7 @@ class Application(tk.Frame):
     in order to update the GUI. """
     def somethingHappened(self, coord, iid, base):
         
-        
+        print("the gametype is ", self.GAMETYPE)
         ## if self.GAMETYPE == "hosting" - do game with moves sent to network
         
         tileInfo = inBoard.tilePressed(coord) # get the tile which was pressed
@@ -390,7 +390,7 @@ class Application(tk.Frame):
     
     def on_client_connect(self, base, Board):
         print("connection has been made so now allow each prog to proceed to thegame")
-        self.GAMETYPE = "hosting"
+        self.GAMETYPE = "HOSTING"
         # state is set tp multiplayer-host
         # have access to base (gui) and board
         self.setup(base, Board)
@@ -431,7 +431,7 @@ class Application(tk.Frame):
             
             
     def localGame(self, base, Board):
-        self.STATE = 1
+        self.GAMETYPE = "LOCAL"
         self.setup(base, Board)
             
     """ Draws the GUI buttons, board and tiles and attaches each tile to a callback function
